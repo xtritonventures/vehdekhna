@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bus Tracking Dashboard</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      background-color: #0f2a1f;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #map {
+      height: 600px;
+      margin-top: 15px;
+      border: 2px solid #4caf50;
+    }
+
+    select {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .bus-label {
+      background: #1b3a2f;
+      color: #ffffff;
+      border: 1px solid #4caf50;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: 12px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>PANTHER EYES – 140</h2>
+
+  <div>
+    Select Group
+    <br>
+    <select id="group">
+      <option value="">-- Select --</option>
+      <option>43</option>
+      <option>75</option>
+      <option>18</option>
+      <option>24</option>
+      <option>692</option>
+      <option>964</option>
+      <option>204</option>
+    </select>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const map = L.map('map', {
+      minZoom: 9,
+      maxZoom: 12,
+      zoomControl: true
+    }).setView([26.5, 73.5], 10);
+
+    L.tileLayer('/tiles/{z}/{x}/{y}.png', {
+      minZoom: 9,
+      maxZoom: 12,
+      noWrap: true,
+      attribution: 'Offline OpenStreetMap'
+    }).addTo(map);
+
+    L.control.scale().addTo(map);
+
+    const markers = {};
+    let autoFittedOnce = false;
+
+    function formatTime(epochSeconds) {
+      const date = new Date(epochSeconds * 1000);
+      return date.toLocaleTimeString();
+    }
+
+    function refresh() {
+      const group = document.getElementById("group").value;
+      if (!group) return;
+
+      fetch(`/locations/?group=${group}`)
+        .then(res => res.json())
+        .then(data => {
+          const bounds = [];
+
+          for (const busId in data) {
+            const bus = data[busId];
+            const latlng = [bus.latitude, bus.longitude];
+            bounds.push(latlng);
+
+            const labelText =
+              `Veh ${busId}<br>` +
+              `Last: ${formatTime(bus.timestamp)}`;
+
+            if (markers[busId]) {
+              markers[busId].setLatLng(latlng);
+              markers[busId].setTooltipContent(labelText);
+            } else {
+              markers[busId] = L.marker(latlng)
+                .addTo(map)
+                .bindTooltip(labelText, {
+                  permanent: true,
+                  direction: 'top',
+                  offset: [0, -10],
+                  className: 'bus-label'
+                });
+            }
+          }
+
+          // 🔹 Auto-fit map to active buses (only when group changes or first load)
+          if (bounds.length > 0 && !autoFittedOnce) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+            autoFittedOnce = true;
+          }
+        });
+    }
+
+    // Reset auto-fit when group changes
+    document.getElementById("group").addEventListener("change", () => {
+      autoFittedOnce = false;
+      refresh();
+    });
+
+    setInterval(refresh, 5000);
+  </script>
+
+</body>
+</html>

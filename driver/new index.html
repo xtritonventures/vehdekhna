@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Panther Eyes - Driver Location Uploader</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: white;
+    }
+
+    header {
+      background-color: #3B5323; /* Olive Green */
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      font-weight: bold;
+    }
+
+    .logo {
+      height: 60px;
+      width: 60px;
+      border-radius: 10px;
+    }
+
+    main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: calc(100vh - 100px); /* full screen minus header */
+      text-align: center;
+      font-size: 1.2em;
+      color: #000;
+    }
+
+    .status-message {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PANTHER EYES</h1>
+    <img src="horse-logo.jpg" alt="Logo" class="logo">
+  </header>
+
+  <main>
+    <p class="status-message">new index You are now visible to AQ</p>
+    <p class="status-message">Please allow location access</p>
+    <p class="status-message">Please keep browser ON in the background</p>
+  </main>
+
+  <script>
+    const busId = prompt("Enter your Bus ID:");
+    
+    function sendLocation(position) {
+      fetch('/update-location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bus_id: busId,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        })
+      }).catch(err => console.error('Error sending location:', err));
+    }
+
+    function errorHandler(error) {
+      console.error('Geolocation error:', error);
+    }
+
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition(sendLocation, errorHandler);
+    }, 5000);
+  </script>
+</body>
+</html>
+

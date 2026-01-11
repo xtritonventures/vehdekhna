@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Login</title>
+
+  <style>
+    body {
+      background-color: #0f2a1f;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 40px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #000000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Admin Dashboard Login</h2>
+
+  <div>
+    <div>Username</div>
+    <input id="username">
+  </div>
+
+  <div>
+    <div>Password</div>
+    <input id="password" type="password">
+  </div>
+
+  <button onclick="login()">Login</button>
+
+  <script>
+    function login() {
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username.value,
+          password: password.value
+        })
+      }).then(res => {
+        if (res.status === 200) {
+          window.location.href = "/dashboard/view";
+        } else {
+          alert("Invalid credentials");
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
