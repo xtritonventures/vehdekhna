@@ -58,20 +58,28 @@ def login():
 # ------------------------
 # Temp Debug Route
 # ------------------------
-@app.route('/debug-static')
-def debug_static():
+@app.route('/debug-tile/<int:z>/<int:x>/<int:y>')
+def debug_tile(z, x, y):
     import os
+
     base = os.path.dirname(os.path.abspath(__file__))
-    static_path = os.path.join(base, 'static')
-    tiles_path = os.path.join(static_path, 'tiles')
+    tile_path = os.path.join(
+        base, 'static', 'tiles', str(z), str(x), f'{y}.png'
+    )
 
     return {
-        "base_dir": base,
-        "static_exists": os.path.exists(static_path),
-        "tiles_exists": os.path.exists(tiles_path),
-        "static_contents": os.listdir(static_path) if os.path.exists(static_path) else [],
-        "tiles_contents": os.listdir(tiles_path)[:5] if os.path.exists(tiles_path) else []
+        "requested": f"{z}/{x}/{y}.png",
+        "absolute_path": tile_path,
+        "exists": os.path.exists(tile_path),
+        "is_file": os.path.isfile(tile_path),
+        "parent_exists": os.path.exists(os.path.dirname(tile_path)),
+        "parent_contents": (
+            os.listdir(os.path.dirname(tile_path))
+            if os.path.exists(os.path.dirname(tile_path))
+            else []
+        )
     }
+
 
 # ------------------------
 # Driver location update
