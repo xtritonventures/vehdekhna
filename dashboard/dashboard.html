@@ -63,17 +63,17 @@
 
   <script>
     const map = L.map('map', {
-      minZoom: 9,
-      maxZoom: 12,
+      minZoom: 5,
+      maxZoom: 8,
       zoomControl: true
-    }).setView([26.5, 73.5], 10);
+    }).setView([26.5, 73.5], 5);
 
-    L.tileLayer('/tiles/{z}/{x}/{y}.png', {
-      minZoom: 9,
-      maxZoom: 12,
-      noWrap: true,
-      attribution: 'Offline OpenStreetMap'
+    L.tileLayer('/static/tiles/{z}/{x}/{y}.png', {
+      minZoom: 5,
+      maxZoom: 8,
+      noWrap: true
     }).addTo(map);
+
 
     L.control.scale().addTo(map);
 
