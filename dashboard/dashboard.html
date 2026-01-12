@@ -69,10 +69,12 @@
     }).setView([26.5, 73.5], 5);
 
     L.tileLayer('/static/tiles/{z}/{x}/{y}.png', {
+      tms: true,
       minZoom: 5,
       maxZoom: 8,
       noWrap: true
     }).addTo(map);
+
 
 
     L.control.scale().addTo(map);
