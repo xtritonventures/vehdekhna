@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 from functools import wraps
 import time
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__, static_folder=None)
 CORS(app)
@@ -52,10 +55,23 @@ def login():
 
     return jsonify({"status": "unauthorized"}), 401
 
-@app.route('/tiles/<int:z>/<int:x>/<int:y>.png')
-def serve_tiles(z, x, y):
-    return send_from_directory(f'tiles/{z}/{x}', f'{y}.png')
+# ------------------------
+# Temp Debug Route
+# ------------------------
+@app.route('/debug-static')
+def debug_static():
+    import os
+    base = os.path.dirname(os.path.abspath(__file__))
+    static_path = os.path.join(base, 'static')
+    tiles_path = os.path.join(static_path, 'tiles')
 
+    return {
+        "base_dir": base,
+        "static_exists": os.path.exists(static_path),
+        "tiles_exists": os.path.exists(tiles_path),
+        "static_contents": os.listdir(static_path) if os.path.exists(static_path) else [],
+        "tiles_contents": os.listdir(tiles_path)[:5] if os.path.exists(tiles_path) else []
+    }
 
 # ------------------------
 # Driver location update
