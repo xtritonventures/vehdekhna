@@ -68,13 +68,29 @@
       zoomControl: true
     }).setView([26.5, 73.5], 5);
 
-    L.tileLayer('/static/tiles/{z}/{x}/{y}.png', {
+    // Offline tiles (QGIS)
+    const offlineTiles = L.tileLayer('/static/tiles/{z}/{x}/{y}.png', {
       minZoom: 5,
       maxZoom: 8,
-      noWrap: true
-    }).addTo(map);
+      noWrap: true,
+      detectRetina: false
+    });
 
+    // Online fallback tiles
+    const onlineTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      minZoom: 5,
+      maxZoom: 18
+    });
 
+    // Start with offline
+    offlineTiles.addTo(map);
+
+    // Fallback when offline tile is missing
+    offlineTiles.on('tileerror', function () {
+      if (!map.hasLayer(onlineTiles)) {
+        onlineTiles.addTo(map);
+      }
+    });
 
     L.control.scale().addTo(map);
 
